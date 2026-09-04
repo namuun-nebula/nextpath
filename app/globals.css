@@ -1,0 +1,14 @@
+/* Minimal reset only. All real styling lives inside app/page.js, exactly as
+   it did in the original nextpath.jsx prototype — nothing design-related
+   was added here. This just removes the browser's default body margin so
+   the page renders edge-to-edge the way it did in the prototype preview. */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
