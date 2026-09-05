@@ -3,7 +3,7 @@ export async function GET() {
   const baseId = process.env.AIRTABLE_BASE_ID;
 
   const response = await fetch(
-    `https://api.airtable.com/v0/${baseId}/Opportunities`,
+    `https://api.airtable.com/v0/${baseId}/Opportunities?filterByFormula=Status%3D%22Published%22`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
