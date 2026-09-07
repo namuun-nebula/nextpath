@@ -593,7 +593,7 @@ const INTEREST_AREAS = [
   { label: "Эрүүл мэнд, амьдралын ухаан", sub: "Анагаах ухаан · Сэтгэл судлал · Биологи", accent: "lime", Icon: HeartPulse, query: "био" },
 ];
 
-function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter }) {
+function Home({ opportunities, setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter }) {
   const heroRef = useRef(null);
   const reducedMotion = useReducedMotion();
   useEffect(() => {
@@ -610,10 +610,10 @@ function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQuer
     return () => el.removeEventListener("mousemove", onMove);
   }, [reducedMotion]);
 
-  const showcase = OPPS.filter(o => o.featured || o.isNew).slice(0, 4);
-  const soonCount = OPPS.filter(o => daysUntil(o.deadline) <= 30 && daysUntil(o.deadline) >= 0).length;
-  const mnCount = OPPS.filter(o => o.origin === "mongolia").length;
-  const intlCount = OPPS.filter(o => o.origin === "international").length;
+  const showcase = opportunities.filter(o => o.featured || o.isNew).slice(0, 4);
+  const soonCount = opportunities.filter(o => daysUntil(o.deadline) <= 30 && daysUntil(o.deadline) >= 0).length;
+  const mnCount = opportunities.filter(o => o.origin === "mongolia").length;
+  const intlCount = opportunities.filter(o => o.origin === "international").length;
 
   const goExplore = (origin, category, query) => {
     setOriginFilter(origin || null); setCategoryFilter(category || null); setQueryFilter(query || "");
@@ -694,7 +694,7 @@ function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQuer
   );
 }
 
-function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
+function Browse({ opportunities, openDetail, initialCategory, initialOrigin, initialQuery }) {
   const [query, setQuery] = useState(initialQuery || "");
   const [type, setType] = useState(initialCategory || null);
   const [origin, setOrigin] = useState(initialOrigin || null);
@@ -704,11 +704,11 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
   const [mnOnly, setMnOnly] = useState(false);
   const [soonFirst, setSoonFirst] = useState(false);
 
-  const formats = [...new Set(OPPS.map(o => o.format))];
-  const costs = [...new Set(OPPS.map(o => o.cost))];
-  const levels = [...new Set(OPPS.map(o => o.experienceLevel))];
+  const formats = [...new Set(opportunities.map(o => o.format))];
+  const costs = [...new Set(opportunities.map(o => o.cost))];
+  const levels = [...new Set(opportunities.map(o => o.experienceLevel))];
 
-  let filtered = OPPS.filter(o => {
+  let filtered = opportunities.filter(o => {
     if (type && o.type !== type) return false;
     if (origin && o.origin !== origin) return false;
     if (format && o.format !== format) return false;
@@ -725,7 +725,7 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
       <div className="np-browse-top">
         <BackgroundWorld items={SPARSE.browseTop} />
         <h2>Боломжуудын сан</h2>
-        <p>{OPPS.length}+ БОЛОМЖООС ЧАМД ТОХИРОХЫГ ОЛ</p>
+        <p>{opportunities.length}+ БОЛОМЖООС ЧАМД ТОХИРОХЫГ ОЛ</p>
       </div>
       <div className="np-browse-wrap">
         <div className="np-browse-search">
@@ -770,10 +770,10 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
   );
 }
 
-function Detail({ opp, back }) {
+function Detail({ opp, back, opportunities }) {
   if (!opp) return null;
   const days = daysUntil(opp.deadline);
-  const related = OPPS.filter(o => o.id !== opp.id && o.type === opp.type).slice(0, 3);
+  const related = opportunities.filter(o => o.id !== opp.id && o.type === opp.type).slice(0, 3);
   const accent = accentFor(opp.type);
   const Sticker = STICKERS[opp.type] || StickerMolecule;
   return (
@@ -938,6 +938,24 @@ export default function NextPathApp() {
   const [originFilter, setOriginFilter] = useState(null);
   const [queryFilter, setQueryFilter] = useState("");
   const [addTab, setAddTab] = useState("add");
+  const [opportunities, setOpportunities] = useState(OPPS);
+  useEffect(() => {
+  fetch("/api/opportunities")
+    .then(res => res.json())
+    .then(data => {
+      if (data.records?.length) {
+        setOpportunities(
+          data.records.map(record => ({
+  ...record.fields,
+  id: record.id,
+  bestFor: record.fields["who it is best for"],
+  timeCommitment: record.fields["time commitment"],
+          }))
+        );
+      }
+    })
+    .catch(() => {});
+}, []);
 
   const openDetail = (opp) => { setSelected(opp); setView("detail"); window.scrollTo?.(0, 0); };
   const goView = (v) => { setView(v); if (v !== "browse") { setCategoryFilter(null); setOriginFilter(null); setQueryFilter(""); } window.scrollTo?.(0, 0); };
@@ -948,9 +966,9 @@ export default function NextPathApp() {
       <GlobalStyles />
       <Nav view={view} setView={goView} openAdd={openAdd} />
       <main>
-        {view === "home" && <Home setView={goView} openDetail={openDetail} setCategoryFilter={setCategoryFilter} setOriginFilter={setOriginFilter} setQueryFilter={setQueryFilter} />}
-        {view === "browse" && <Browse openDetail={openDetail} initialCategory={categoryFilter} initialOrigin={originFilter} initialQuery={queryFilter} />}
-        {view === "detail" && <Detail opp={selected} back={() => goView("browse")} />}
+        {view === "home" && <Home opportunities={opportunities} setView={goView} openDetail={openDetail} setCategoryFilter={setCategoryFilter} setOriginFilter={setOriginFilter} setQueryFilter={setQueryFilter} />}
+        {view === "browse" && <Browse opportunities={opportunities} openDetail={openDetail} initialCategory={categoryFilter} initialOrigin={originFilter} initialQuery={queryFilter} />}
+        {view === "detail" && <Detail opp={selected} back={() => goView("browse")} opportunities={opportunities} />}
         {view === "about" && <About />}
         {view === "add" && <AddOpportunity initialTab={addTab} back={() => goView("home")} />}
       </main>
