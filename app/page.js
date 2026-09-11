@@ -160,7 +160,7 @@ function useReducedMotion() {
 /* ---------------- Global styles ---------------- */
 
 const GlobalStyles = () => (
-  <style>{`
+  <style suppressHydrationWarning>{`
     @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Unbounded:wght@600;700&display=swap');
 
     .np-root {
@@ -593,7 +593,7 @@ const INTEREST_AREAS = [
   { label: "Эрүүл мэнд, амьдралын ухаан", sub: "Анагаах ухаан · Сэтгэл судлал · Биологи", accent: "lime", Icon: HeartPulse, query: "био" },
 ];
 
-function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter }) {
+function Home({ opportunities, setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter }) {
   const heroRef = useRef(null);
   const reducedMotion = useReducedMotion();
   useEffect(() => {
@@ -610,10 +610,10 @@ function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQuer
     return () => el.removeEventListener("mousemove", onMove);
   }, [reducedMotion]);
 
-  const showcase = OPPS.filter(o => o.featured || o.isNew).slice(0, 4);
-  const soonCount = OPPS.filter(o => daysUntil(o.deadline) <= 30 && daysUntil(o.deadline) >= 0).length;
-  const mnCount = OPPS.filter(o => o.origin === "mongolia").length;
-  const intlCount = OPPS.filter(o => o.origin === "international").length;
+  const showcase = opportunities.filter(o => o.featured || o.isNew).slice(0, 4);
+  const soonCount = opportunities.filter(o => daysUntil(o.deadline) <= 30 && daysUntil(o.deadline) >= 0).length;
+  const mnCount = opportunities.filter(o => o.origin === "mongolia").length;
+  const intlCount = opportunities.filter(o => o.origin === "international").length;
 
   const goExplore = (origin, category, query) => {
     setOriginFilter(origin || null); setCategoryFilter(category || null); setQueryFilter(query || "");
@@ -694,7 +694,7 @@ function Home({ setView, openDetail, setCategoryFilter, setOriginFilter, setQuer
   );
 }
 
-function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
+function Browse({ opportunities, openDetail, initialCategory, initialOrigin, initialQuery }) {
   const [query, setQuery] = useState(initialQuery || "");
   const [type, setType] = useState(initialCategory || null);
   const [origin, setOrigin] = useState(initialOrigin || null);
@@ -704,11 +704,11 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
   const [mnOnly, setMnOnly] = useState(false);
   const [soonFirst, setSoonFirst] = useState(false);
 
-  const formats = [...new Set(OPPS.map(o => o.format))];
-  const costs = [...new Set(OPPS.map(o => o.cost))];
-  const levels = [...new Set(OPPS.map(o => o.experienceLevel))];
+  const formats = [...new Set(opportunities.map(o => o.format))];
+  const costs = [...new Set(opportunities.map(o => o.cost))];
+  const levels = [...new Set(opportunities.map(o => o.experienceLevel))];
 
-  let filtered = OPPS.filter(o => {
+  let filtered = opportunities.filter(o => {
     if (type && o.type !== type) return false;
     if (origin && o.origin !== origin) return false;
     if (format && o.format !== format) return false;
@@ -725,7 +725,7 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
       <div className="np-browse-top">
         <BackgroundWorld items={SPARSE.browseTop} />
         <h2>Боломжуудын сан</h2>
-        <p>{OPPS.length}+ БОЛОМЖООС ЧАМД ТОХИРОХЫГ ОЛ</p>
+        <p>{opportunities.length}+ БОЛОМЖООС ЧАМД ТОХИРОХЫГ ОЛ</p>
       </div>
       <div className="np-browse-wrap">
         <div className="np-browse-search">
@@ -770,10 +770,10 @@ function Browse({ openDetail, initialCategory, initialOrigin, initialQuery }) {
   );
 }
 
-function Detail({ opp, back }) {
+function Detail({ opp, back, opportunities }) {
   if (!opp) return null;
   const days = daysUntil(opp.deadline);
-  const related = OPPS.filter(o => o.id !== opp.id && o.type === opp.type).slice(0, 3);
+  const related = opportunities.filter(o => o.id !== opp.id && o.type === opp.type).slice(0, 3);
   const accent = accentFor(opp.type);
   const Sticker = STICKERS[opp.type] || StickerMolecule;
   return (
@@ -939,32 +939,176 @@ export default function NextPathApp() {
   const [queryFilter, setQueryFilter] = useState("");
   const [addTab, setAddTab] = useState("add");
 
-  const openDetail = (opp) => { setSelected(opp); setView("detail"); window.scrollTo?.(0, 0); };
-  const goView = (v) => { setView(v); if (v !== "browse") { setCategoryFilter(null); setOriginFilter(null); setQueryFilter(""); } window.scrollTo?.(0, 0); };
-  const openAdd = (tab) => { setAddTab(tab || "add"); };
+  const [opportunities, setOpportunities] = useState(OPPS);
+
+  useEffect(() => {
+    async function loadOpportunities() {
+      try {
+        const response = await fetch("/api/opportunities", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) throw new Error("Failed to load opportunities");
+
+        const data = await response.json();
+
+        const fixMojibake = (value) => {
+          if (typeof value !== "string") return value;
+          if (!/[ÐÑÒÓÃÂ]/.test(value)) return value;
+
+          try {
+            return new TextDecoder("utf-8").decode(
+              Uint8Array.from(value, char => char.charCodeAt(0))
+            );
+          } catch {
+            return value;
+          }
+        };
+
+        const mapped = data.records.map((record) => {
+          const fields = Object.fromEntries(
+            Object.entries(record.fields || {}).map(([key, value]) => [
+              key,
+              Array.isArray(value)
+                ? value.map(fixMojibake)
+                : fixMojibake(value),
+            ])
+          );
+
+          return {
+            id: record.id,
+            name: fields["Opportunity Name"] || fields["Name"] || "",
+            org: fields["Organization"] || "",
+            description: fields["Description"] || "",
+            type: fields["Type"] || "",
+            field: Array.isArray(fields["Field"])
+              ? fields["Field"].join(", ")
+              : fields["Field"] || "",
+            grade: fields["Grade"] || "",
+            age: fields["Age"] || "",
+            location: fields["Location"] || "",
+            format: fields["Format"] || "",
+            mongoliaEligible:
+              fields["Mongolia Eligibility"] === "Тийм" ||
+              fields["Mongolia Eligibility"] === "Yes",
+            origin: "mongolia",
+            cost: fields["Cost/Funding"] || "",
+            deadline: fields["Deadline"] || "",
+            experienceLevel: fields["Experience Level"] || "",
+            whatYouDo: fields["What You'll Actually Do"] || "",
+            requirements: fields["Requirements"] || "",
+            whatYouGet: fields["What You'll Get"] || "",
+            officialLink:
+              fields["Official Link"] ||
+              fields["Application Link"] ||
+              "",
+            applicationLink: fields["Application Link"] || "",
+            status: fields["Status"] || "",
+            source: fields["Source"] || "",
+            verifiedDate: fields["Verified Date"] || "",
+            bestFor: fields["Who it is best for"] || "",
+            timeCommitment: fields["Time commitment"] || "",
+          };
+        });
+
+        if (mapped.length > 0) {
+          setOpportunities(mapped);
+        }
+      } catch (error) {
+        console.error("Failed to load opportunities:", error);
+      }
+    }
+
+    loadOpportunities();
+  }, []);
+
+  const openDetail = (opp) => {
+    setSelected(opp);
+    setView("detail");
+    window.scrollTo?.(0, 0);
+  };
+
+  const goView = (v) => {
+    setView(v);
+    if (v !== "browse") {
+      setCategoryFilter(null);
+      setOriginFilter(null);
+      setQueryFilter("");
+    }
+    window.scrollTo?.(0, 0);
+  };
+
+  const openAdd = (tab) => {
+    setAddTab(tab || "add");
+  };
 
   return (
     <div className="np-root">
       <GlobalStyles />
       <Nav view={view} setView={goView} openAdd={openAdd} />
+
       <main>
-        {view === "home" && <Home setView={goView} openDetail={openDetail} setCategoryFilter={setCategoryFilter} setOriginFilter={setOriginFilter} setQueryFilter={setQueryFilter} />}
-        {view === "browse" && <Browse openDetail={openDetail} initialCategory={categoryFilter} initialOrigin={originFilter} initialQuery={queryFilter} />}
-        {view === "detail" && <Detail opp={selected} back={() => goView("browse")} />}
+        {view === "home" && (
+          <Home
+            opportunities={opportunities}
+            setView={goView}
+            openDetail={openDetail}
+            setCategoryFilter={setCategoryFilter}
+            setOriginFilter={setOriginFilter}
+            setQueryFilter={setQueryFilter}
+          />
+        )}
+
+        {view === "browse" && (
+          <Browse
+            opportunities={opportunities}
+            openDetail={openDetail}
+            initialCategory={categoryFilter}
+            initialOrigin={originFilter}
+            initialQuery={queryFilter}
+          />
+        )}
+
+        {view === "detail" && (
+          <Detail
+            opportunities={opportunities}
+            opp={selected}
+            back={() => goView("browse")}
+          />
+        )}
+
         {view === "about" && <About />}
-        {view === "add" && <AddOpportunity initialTab={addTab} back={() => goView("home")} />}
+
+        {view === "add" && (
+          <AddOpportunity
+            initialTab={addTab}
+            back={() => goView("home")}
+          />
+        )}
       </main>
+
       <footer className="np-footer">
         <BackgroundWorld items={SPARSE.footer} />
+
         <div>
-          <div className="np-logo np-display"><Compass size={17} /> NEXTPATH</div>
-          <div className="desc">МОНГОЛ СУРАГЧДАД ЗОРИУЛСАН БОЛОМЖИЙН ГАЗРЫН ЗУРАГ</div>
+          <div className="np-logo np-display">
+            <Compass size={17} /> NEXTPATH
+          </div>
+          <div className="desc">
+            МОНГОЛ СУРАГЧДАД ЗОРИУЛСАН БОЛОМЖИЙН ГАЗРЫН ЗУРАГ
+          </div>
         </div>
+
         <div className="np-footer-links">
           <button onClick={() => goView("home")}>Нүүр</button>
           <button onClick={() => goView("browse")}>Боломжууд</button>
           <button onClick={() => goView("about")}>Бидний тухай</button>
-          <button onClick={() => { openAdd("add"); goView("add"); }}>Боломж нэмэх</button>
+          <button onClick={() => {
+            openAdd("add");
+            goView("add");
+          }}>
+            Боломж нэмэх
+          </button>
         </div>
       </footer>
     </div>
