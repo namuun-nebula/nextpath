@@ -133,7 +133,7 @@ const isStem = (o) => STEM_FIELDS.some(f => o.field.includes(f));
 
 function daysUntil(dateStr) {
   const d = new Date(dateStr);
-  const now = new Date("2026-08-29");
+  const now = new Date();
   return Math.ceil((d - now) / (1000 * 60 * 60 * 24));
 }
 function formatDate(dateStr) {
@@ -340,7 +340,7 @@ const GlobalStyles = () => (
 
     /* ---------- Detail page ---------- */
     .np-detail-top { position: relative; padding: 30px 24px 56px; overflow: hidden; background: radial-gradient(ellipse 50% 50% at 20% 0%, rgba(139,92,246,0.14) 0%, transparent 60%), var(--bg); }
-    .np-back { position: relative; display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); }
+    .np-back { position: relative; display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cobalt-deep); }
     .np-back:hover { color: var(--ink); }
     .np-detail { max-width: 720px; margin: -30px auto 0; padding: 0 24px 80px; position: relative; z-index: 1; }
     .np-detail-head { background: var(--paper); border-radius: 18px; padding: 32px; box-shadow: 0 1px 2px rgba(32,31,43,0.04), 0 20px 34px -22px rgba(32,31,43,0.22); margin-bottom: 30px; }
@@ -388,7 +388,7 @@ const GlobalStyles = () => (
     .np-field input, .np-field select, .np-field textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 14px; font-size: 14px; color: var(--ink); font-family: 'Manrope', sans-serif; background: var(--paper); }
     .np-field input:focus, .np-field select:focus, .np-field textarea:focus { outline: none; border-color: var(--cobalt-deep); }
     .np-field textarea { resize: vertical; min-height: 90px; }
-    .np-submitbtn { width: 100%; background: var(--ink); color: #fff; font-weight: 700; padding: 14px; border-radius: 10px; font-size: 14.5px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s ease; margin-top: 6px; }
+    .np-root .np-submitbtn { position: sticky; bottom: 16px; width: 100%; background: var(--ink); color: #fff; font-weight: 700; padding: 15px; border-radius: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s ease; margin-top: 18px; box-shadow: 0 10px 24px rgba(32,31,43,0.35); z-index: 5; }
     .np-submitbtn:hover { background: var(--magenta-deep); }
     .np-add-success { background: var(--lime-soft); border-radius: 14px; padding: 26px; text-align: center; }
     .np-add-success .t { font-family: 'Newsreader', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
@@ -559,7 +559,7 @@ function OpportunityCard({ opp, onClick }) {
           <div className="desc">{opp.description}</div>
           <div className="np-card-meta">
             <div className="facts">
-              {opp.grade} анги<span className="dot">·</span>{opp.format}<span className="dot">·</span>{opp.cost}
+              {opp.format}<span className="dot">·</span>{opp.cost}
               {opp.mongoliaEligible && <><span className="dot">·</span>{opp.origin === "mongolia" ? "Монгол" : "Олон улс"}</>}
             </div>
             <div className={`deadline ${soon ? "soon" : ""}`}><Clock size={11} />БҮРТГЭЛ ДУУСАХ · {formatDateCompact(opp.deadline)}</div>
@@ -586,14 +586,14 @@ function SectionHead({ eyebrow, title, sub, onSeeAll }) {
 /* ---------------- Pages ---------------- */
 
 const INTEREST_AREAS = [
-  { label: "STEM", sub: "Шинжлэх ухаан · Технологи · Инженерчлэл", accent: "cobalt", Icon: FlaskConical, query: "" },
-  { label: "Нийгэм, хүмүүнлэг", sub: "Олон улсын харилцаа · Нийгмийн ухаан · Хууль", accent: "violet", Icon: Globe2, query: "нийгэм" },
-  { label: "Бизнес, эдийн засаг", sub: "Бизнес · Эдийн засаг · Манлайлал", accent: "magenta", Icon: Briefcase, query: "бизнес" },
-  { label: "Урлаг, бүтээлч", sub: "Дизайн · Хөгжим · Медиа", accent: "teal", Icon: Palette, query: "урлаг" },
-  { label: "Эрүүл мэнд, амьдралын ухаан", sub: "Анагаах ухаан · Сэтгэл судлал · Биологи", accent: "lime", Icon: HeartPulse, query: "био" },
+  { label: "STEM", sub: "Шинжлэх ухаан · Технологи · Инженерчлэл", accent: "cobalt", Icon: FlaskConical, field: "STEM" },
+  { label: "Нийгэм, хүмүүнлэг", sub: "Олон улсын харилцаа · Нийгмийн ухаан · Хууль", accent: "violet", Icon: Globe2, field: "Нийгэм, хүмүүнлэг" },
+  { label: "Бизнес, эдийн засаг", sub: "Бизнес · Эдийн засаг · Манлайлал", accent: "magenta", Icon: Briefcase, field: "Бизнес, эдийн засаг" },
+  { label: "Урлаг, бүтээлч", sub: "Дизайн · Хөгжим · Медиа", accent: "teal", Icon: Palette, field: "Урлаг, бүтээлч" },
+  { label: "Эрүүл мэнд, амьдралын ухаан", sub: "Анагаах ухаан · Сэтгэл судлал · Биологи", accent: "lime", Icon: HeartPulse, field: "Эрүүл мэнд, амьдралын ухаан" },
 ];
 
-function Home({ opportunities, setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter }) {
+function Home({ opportunities, setView, openDetail, setCategoryFilter, setOriginFilter, setQueryFilter, setFieldFilter }) {
   const heroRef = useRef(null);
   const reducedMotion = useReducedMotion();
   useEffect(() => {
@@ -615,10 +615,13 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
   const mnCount = opportunities.filter(o => o.origin === "mongolia").length;
   const intlCount = opportunities.filter(o => o.origin === "international").length;
 
-  const goExplore = (origin, category, query) => {
-    setOriginFilter(origin || null); setCategoryFilter(category || null); setQueryFilter(query || "");
-    setView("browse");
-  };
+const goExplore = (origin, category, field) => {
+  setOriginFilter(origin || null);
+  setCategoryFilter(category || null);
+  setFieldFilter(field || null);
+  setQueryFilter("");
+  setView("browse");
+};
 
   return (
     <div>
@@ -641,7 +644,7 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
         <SectionHead eyebrow="/// НЭЭЖ ЭХЭЛ" title="Хаанаас эхлэх вэ?" sub="Сонирхлоороо, эсвэл гарал/хугацаагаар хайж эхэл" />
         <div className="np-exploregrid g5">
           {INTEREST_AREAS.map(a => (
-            <button key={a.label} className="np-exploretile" style={{ "--accent": `var(--${a.accent}-deep)`, background: `var(--${a.accent}-soft)` }} onClick={() => goExplore(null, null, a.query)}>
+            <button key={a.label} className="np-exploretile" style={{ "--accent": `var(--${a.accent}-deep)`, background: `var(--${a.accent}-soft)` }} onClick={() => goExplore(null, null, a.field)}>
               <div className="icon"><a.Icon size={19} /></div>
               <div><div className="lbl">{a.label}</div><div className="sub">{a.sub}</div></div>
             </button>
@@ -677,7 +680,7 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
         </div>
         <div className="np-principles">
           <div className="np-principle"><div className="t">ХАЙ</div><p>Өөрт сонирхолтой боломжуудаа ол.</p></div>
-          <div className="np-principle"><div className="t">СОНГО</div><p>Өөрт тохирохыг нь харьцуулж үз.</p></div>
+          <div className="np-principle"><div className="t">СОНГО</div><p>Өөрт тохирохыг харьцуулж үз.</p></div>
           <div className="np-principle"><div className="t">АЛХ</div><p>Олсон боломжоо дараагийн алхам болго.</p></div>
         </div>
       </div>
@@ -685,8 +688,8 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
       <div className="np-addcta">
         <div className="np-addcta-inner">
           <BackgroundWorld items={SPARSE.addcta} />
-          <h3>Мэдэх ёстой боломж байна уу?</h3>
-          <p>Чи мэддэг сайхан боломжоо бидэнд хэлээрэй — бусад сурагчдад тус болно.</p>
+          <h3>Сайхан боломж мэддэг үү?</h3>
+          <p>Бидэнд хуваалцаарай — өөр сурагчдад ч хэрэг болно.</p>
           <button onClick={() => setView("add")}>Боломж санал болгох <ArrowRight size={16} /></button>
         </div>
       </div>
@@ -694,8 +697,9 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
   );
 }
 
-function Browse({ opportunities, openDetail, initialCategory, initialOrigin, initialQuery }) {
+function Browse({ opportunities, openDetail, initialCategory, initialOrigin, initialQuery, initialField, back }) {
   const [query, setQuery] = useState(initialQuery || "");
+  const [field, setField] = useState(initialField || null);
   const [type, setType] = useState(initialCategory || null);
   const [origin, setOrigin] = useState(initialOrigin || null);
   const [format, setFormat] = useState("");
@@ -710,6 +714,7 @@ function Browse({ opportunities, openDetail, initialCategory, initialOrigin, ini
 
   let filtered = opportunities.filter(o => {
     if (type && o.type !== type) return false;
+    if (field && o.field !== field) return false;
     if (origin && o.origin !== origin) return false;
     if (format && o.format !== format) return false;
     if (cost && o.cost !== cost) return false;
@@ -724,6 +729,7 @@ function Browse({ opportunities, openDetail, initialCategory, initialOrigin, ini
     <div>
       <div className="np-browse-top">
         <BackgroundWorld items={SPARSE.browseTop} />
+        <div style={{ maxWidth: 1160, margin: "0 auto 14px", textAlign: "left" }}><button className="np-back" onClick={back}><ChevronLeft size={15} /> Буцах</button></div>
         <h2>Боломжуудын сан</h2>
         <p>{opportunities.length}+ БОЛОМЖООС ЧАМД ТОХИРОХЫГ ОЛ</p>
       </div>
@@ -828,17 +834,24 @@ function Detail({ opp, back, opportunities }) {
           </div>
         )}
 
-        <div className="np-applybar"><div className="txt">Албан ёсны эх сурвалж дээр өргөдлөө гарга</div><a href={opp.officialLink}>Өргөдөл гаргах <ExternalLink size={14} /></a></div>
+        <div className="np-applybar">
+          <div className="txt">Дараагийн алхам</div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {opp.applicationLink && <a href={opp.applicationLink} target="_blank" rel="noopener noreferrer">Өргөдөл гаргах <ExternalLink size={14} /></a>}
+            {opp.officialLink && <a href={opp.officialLink} target="_blank" rel="noopener noreferrer" style={{ background: "transparent", color: "#fff", border: "1.5px solid rgba(255,255,255,0.5)" }}>Албан ёсны сайт <ExternalLink size={14} /></a>}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function About() {
+function About({ back }) {
   return (
     <div>
       <div className="np-about-top">
         <BackgroundWorld items={SPARSE.aboutTop} />
+        <div style={{ maxWidth: 600, margin: "0 auto 14px", textAlign: "left" }}><button className="np-back" onClick={back}><ChevronLeft size={15} /> Буцах</button></div>
         <h1>Бидний тухай</h1>
       </div>
       <div className="np-about">
@@ -869,7 +882,63 @@ function AddOpportunity({ initialTab, back }) {
   const [tab, setTab] = useState(initialTab || "add");
   useEffect(() => { setTab(initialTab || "add"); }, [initialTab]);
   const [submitted, setSubmitted] = useState(false);
-  const onSubmit = (e) => { e.preventDefault(); setSubmitted(true); };
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+
+  const [addForm, setAddForm] = useState({ name: "", organization: "", link: "", category: "", audience: "", deadline: "", notes: "" });
+  const [reportForm, setReportForm] = useState({ category: "", relatedOpportunity: "", notes: "" });
+
+  const onSubmitAdd = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "Шинэ боломж",
+          name: addForm.name,
+          organization: addForm.organization,
+          link: addForm.link,
+          category: addForm.category,
+          audience: addForm.audience,
+          deadline: addForm.deadline,
+          notes: addForm.notes,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onSubmitReport = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "Сайжруулах санал",
+          category: reportForm.category,
+          relatedOpportunity: reportForm.relatedOpportunity,
+          notes: reportForm.notes,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div>
@@ -892,25 +961,26 @@ function AddOpportunity({ initialTab, back }) {
             <p>{tab === "add" ? "Таны илгээсэн боломжийг бид шалгаад, удахгүй сайтад нэмнэ." : "Таны саналыг хүлээн авлаа. NextPath-ыг сайжруулахад тусалсанд баярлалаа."}</p>
           </div>
         ) : tab === "add" ? (
-          <form onSubmit={onSubmit}>
-            <div className="np-field"><label>Боломжийн нэр</label><input required placeholder="Жишээ: Залуу Судлаачдын Хөтөлбөр" /></div>
-            <div className="np-field"><label>Байгууллага</label><input required placeholder="Жишээ: ШУТИС" /></div>
-            <div className="np-field"><label>Албан ёсны холбоос</label><input required type="url" placeholder="https://..." /></div>
+          <form onSubmit={onSubmitAdd}>
+            <div className="np-field"><label>Боломжийн нэр</label><input required value={addForm.name} onChange={e => setAddForm({...addForm, name: e.target.value})} placeholder="Жишээ: Залуу Судлаачдын Хөтөлбөр" /></div>
+            <div className="np-field"><label>Байгууллага</label><input required value={addForm.organization} onChange={e => setAddForm({...addForm, organization: e.target.value})} placeholder="Жишээ: ШУТИС" /></div>
+            <div className="np-field"><label>Албан ёсны холбоос</label><input required type="url" value={addForm.link} onChange={e => setAddForm({...addForm, link: e.target.value})} placeholder="https://..." /></div>
             <div className="np-field"><label>Төрөл</label>
-              <select required defaultValue="">
+              <select required value={addForm.category} onChange={e => setAddForm({...addForm, category: e.target.value})}>
                 <option value="" disabled>Сонгох...</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <div className="np-field"><label>Хэнд зориулагдсан бэ</label><input placeholder="Жишээ: 9–11 дүгээр ангийн сурагчид" /></div>
-            <div className="np-field"><label>Бүртгэл дуусах хугацаа</label><input type="date" /></div>
-            <div className="np-field"><label>Нэмэлт мэдээлэл</label><textarea placeholder="Бусад мэдэх ёстой зүйл..." /></div>
-            <button className="np-submitbtn" type="submit"><SendIcon size={15} /> Илгээх</button>
+            <div className="np-field"><label>Хэнд зориулагдсан бэ</label><input value={addForm.audience} onChange={e => setAddForm({...addForm, audience: e.target.value})} placeholder="Жишээ: 9–11 дүгээр ангийн сурагчид" /></div>
+            <div className="np-field"><label>Бүртгэл дуусах хугацаа</label><input type="date" value={addForm.deadline} onChange={e => setAddForm({...addForm, deadline: e.target.value})} /></div>
+            <div className="np-field"><label>Нэмэлт мэдээлэл</label><textarea value={addForm.notes} onChange={e => setAddForm({...addForm, notes: e.target.value})} placeholder="Бусад мэдэх ёстой зүйл..." /></div>
+            {submitError && <p style={{ color: "var(--magenta-deep)", fontSize: 13, marginBottom: 12 }}>Алдаа гарлаа. Дахин оролдоно уу.</p>}
+            <button className="np-submitbtn" type="submit" disabled={submitting}><SendIcon size={15} /> {submitting ? "Илгээж байна..." : "Илгээх"}</button>
           </form>
         ) : (
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmitReport}>
             <div className="np-field"><label>Асуудлын төрөл</label>
-              <select required defaultValue="">
+              <select required value={reportForm.category} onChange={e => setReportForm({...reportForm, category: e.target.value})}>
                 <option value="" disabled>Сонгох...</option>
                 <option>Буруу мэдээлэл</option>
                 <option>Хуучирсан мэдээлэл</option>
@@ -919,9 +989,10 @@ function AddOpportunity({ initialTab, back }) {
                 <option>Сайт сайжруулах санал</option>
               </select>
             </div>
-            <div className="np-field"><label>Аль боломжтой холбоотой вэ (мэдвэл)</label><input placeholder="Боломжийн нэр" /></div>
-            <div className="np-field"><label>Дэлгэрэнгүй</label><textarea required placeholder="Юу буруу байгааг эсвэл юу сайжруулахыг тайлбарлаарай..." /></div>
-            <button className="np-submitbtn" type="submit"><SendIcon size={15} /> Илгээх</button>
+            <div className="np-field"><label>Аль боломжтой холбоотой вэ</label><input value={reportForm.relatedOpportunity} onChange={e => setReportForm({...reportForm, relatedOpportunity: e.target.value})} placeholder="Боломжийн нэр" /></div>
+            <div className="np-field"><label>Дэлгэрэнгүй</label><textarea required value={reportForm.notes} onChange={e => setReportForm({...reportForm, notes: e.target.value})} placeholder="Юу буруу байгааг эсвэл юу сайжруулахыг тайлбарлаарай..." /></div>
+            {submitError && <p style={{ color: "var(--magenta-deep)", fontSize: 13, marginBottom: 12 }}>Алдаа гарлаа. Дахин оролдоно уу.</p>}
+            <button className="np-submitbtn" type="submit" disabled={submitting}><SendIcon size={15} /> {submitting ? "Илгээж байна..." : "Илгээх"}</button>
           </form>
         )}
       </div>
@@ -937,6 +1008,7 @@ export default function NextPathApp() {
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [originFilter, setOriginFilter] = useState(null);
   const [queryFilter, setQueryFilter] = useState("");
+  const [fieldFilter, setFieldFilter] = useState(null);
   const [addTab, setAddTab] = useState("add");
 
   const [opportunities, setOpportunities] = useState(OPPS);
@@ -944,22 +1016,15 @@ export default function NextPathApp() {
   useEffect(() => {
     async function loadOpportunities() {
       try {
-        const response = await fetch("/api/opportunities", {
-          cache: "no-store",
-        });
-
+        const response = await fetch("/api/opportunities", { cache: "no-store" });
         if (!response.ok) throw new Error("Failed to load opportunities");
-
         const data = await response.json();
 
         const fixMojibake = (value) => {
           if (typeof value !== "string") return value;
           if (!/[ÐÑÒÓÃÂ]/.test(value)) return value;
-
           try {
-            return new TextDecoder("utf-8").decode(
-              Uint8Array.from(value, char => char.charCodeAt(0))
-            );
+            return new TextDecoder("utf-8").decode(Uint8Array.from(value, char => char.charCodeAt(0)));
           } catch {
             return value;
           }
@@ -969,146 +1034,77 @@ export default function NextPathApp() {
           const fields = Object.fromEntries(
             Object.entries(record.fields || {}).map(([key, value]) => [
               key,
-              Array.isArray(value)
-                ? value.map(fixMojibake)
-                : fixMojibake(value),
+              Array.isArray(value) ? value.map(fixMojibake) : fixMojibake(value),
             ])
           );
-
           return {
             id: record.id,
             name: fields["Opportunity Name"] || fields["Name"] || "",
             org: fields["Organization"] || "",
             description: fields["Description"] || "",
             type: fields["Type"] || "",
-            field: Array.isArray(fields["Field"])
-              ? fields["Field"].join(", ")
-              : fields["Field"] || "",
+            field: Array.isArray(fields["Field"]) ? fields["Field"].join(", ") : fields["Field"] || "",
             grade: fields["Grade"] || "",
             age: fields["Age"] || "",
             location: fields["Location"] || "",
             format: fields["Format"] || "",
-            mongoliaEligible:
-              fields["Mongolia Eligibility"] === "Тийм" ||
-              fields["Mongolia Eligibility"] === "Yes",
-            origin: "mongolia",
+            mongoliaEligible: fields["Mongolia Eligibility"] === "Тийм" || fields["Mongolia Eligibility"] === "Yes",
+            origin: fields["Origin"] === "Олон улс" ? "international" : "mongolia",
             cost: fields["Cost/Funding"] || "",
             deadline: fields["Deadline"] || "",
             experienceLevel: fields["Experience Level"] || "",
             whatYouDo: fields["What You'll Actually Do"] || "",
             requirements: fields["Requirements"] || "",
             whatYouGet: fields["What You'll Get"] || "",
-            officialLink:
-              fields["Official Link"] ||
-              fields["Application Link"] ||
-              "",
+            officialLink: fields["Official Link"] || "",
             applicationLink: fields["Application Link"] || "",
             status: fields["Status"] || "",
             source: fields["Source"] || "",
             verifiedDate: fields["Verified Date"] || "",
             bestFor: fields["Who it is best for"] || "",
             timeCommitment: fields["Time commitment"] || "",
+            featured: fields["Featured"] === true,
+            isNew: fields["Verified Date"]
+              ? (Date.now() - new Date(fields["Verified Date"]).getTime()) < (14 * 24 * 60 * 60 * 1000)
+              : false,
           };
         });
 
-        if (mapped.length > 0) {
-          setOpportunities(mapped);
-        }
+        if (mapped.length > 0) setOpportunities(mapped);
       } catch (error) {
         console.error("Failed to load opportunities:", error);
       }
     }
-
     loadOpportunities();
   }, []);
 
-  const openDetail = (opp) => {
-    setSelected(opp);
-    setView("detail");
-    window.scrollTo?.(0, 0);
-  };
 
-  const goView = (v) => {
-    setView(v);
-    if (v !== "browse") {
-      setCategoryFilter(null);
-      setOriginFilter(null);
-      setQueryFilter("");
-    }
-    window.scrollTo?.(0, 0);
-  };
-
-  const openAdd = (tab) => {
-    setAddTab(tab || "add");
-  };
+  const openDetail = (opp) => { setSelected(opp); setView("detail"); window.scrollTo?.(0, 0); };
+  const goView = (v) => { setView(v); if (v !== "browse") { setCategoryFilter(null); setOriginFilter(null); setQueryFilter(""); } window.scrollTo?.(0, 0); };
+  const openAdd = (tab) => { setAddTab(tab || "add"); };
 
   return (
     <div className="np-root">
       <GlobalStyles />
       <Nav view={view} setView={goView} openAdd={openAdd} />
-
       <main>
-        {view === "home" && (
-          <Home
-            opportunities={opportunities}
-            setView={goView}
-            openDetail={openDetail}
-            setCategoryFilter={setCategoryFilter}
-            setOriginFilter={setOriginFilter}
-            setQueryFilter={setQueryFilter}
-          />
-        )}
-
-        {view === "browse" && (
-          <Browse
-            opportunities={opportunities}
-            openDetail={openDetail}
-            initialCategory={categoryFilter}
-            initialOrigin={originFilter}
-            initialQuery={queryFilter}
-          />
-        )}
-
-        {view === "detail" && (
-          <Detail
-            opportunities={opportunities}
-            opp={selected}
-            back={() => goView("browse")}
-          />
-        )}
-
-        {view === "about" && <About />}
-
-        {view === "add" && (
-          <AddOpportunity
-            initialTab={addTab}
-            back={() => goView("home")}
-          />
-        )}
+        {view === "home" && <Home opportunities={opportunities} setView={goView} openDetail={openDetail} setCategoryFilter={setCategoryFilter} setOriginFilter={setOriginFilter} setQueryFilter={setQueryFilter} setFieldFilter={setFieldFilter} />}
+        {view === "browse" && <Browse opportunities={opportunities} openDetail={openDetail} initialCategory={categoryFilter} initialOrigin={originFilter} initialQuery={queryFilter} initialField={fieldFilter} back={() => goView("home")} />}
+        {view === "detail" && <Detail opportunities={opportunities} opp={selected} back={() => goView("browse")} />}
+        {view === "about" && <About back={() => goView("home")} />}
+        {view === "add" && <AddOpportunity initialTab={addTab} back={() => goView("home")} />}
       </main>
-
       <footer className="np-footer">
         <BackgroundWorld items={SPARSE.footer} />
-
         <div>
-          <div className="np-logo np-display">
-            <Compass size={17} /> NEXTPATH
-          </div>
-          <div className="desc">
-            МОНГОЛ СУРАГЧДАД ЗОРИУЛСАН БОЛОМЖИЙН ГАЗРЫН ЗУРАГ
-          </div>
+          <div className="np-logo np-display"><Compass size={17} /> NEXTPATH</div>
+          <div className="desc">МОНГОЛ СУРАГЧДАД ЗОРИУЛСАН БОЛОМЖИЙН ГАЗРЫН ЗУРАГ</div>
         </div>
-
         <div className="np-footer-links">
           <button onClick={() => goView("home")}>Нүүр</button>
           <button onClick={() => goView("browse")}>Боломжууд</button>
           <button onClick={() => goView("about")}>Бидний тухай</button>
-          <button onClick={() => {
-            openAdd("add");
-            goView("add");
-          }}>
-            Боломж нэмэх
-          </button>
+          <button onClick={() => { openAdd("add"); goView("add"); }}>Боломж нэмэх</button>
         </div>
       </footer>
     </div>
