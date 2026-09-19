@@ -610,7 +610,7 @@ function Home({ opportunities, setView, openDetail, setCategoryFilter, setOrigin
     return () => el.removeEventListener("mousemove", onMove);
   }, [reducedMotion]);
 
-  const showcase = opportunities.filter(o => o.featured || o.isNew).slice(0, 4);
+  const showcase = opportunities.filter(o => o.featured).slice(0, 4);
   const soonCount = opportunities.filter(o => daysUntil(o.deadline) <= 30 && daysUntil(o.deadline) >= 0).length;
   const mnCount = opportunities.filter(o => o.origin === "mongolia").length;
   const intlCount = opportunities.filter(o => o.origin === "international").length;
